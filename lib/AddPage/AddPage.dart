@@ -107,13 +107,32 @@ class _AddpageState extends State<Addpage> {
               ],
             ),
           ),
+          Container(
+            padding: EdgeInsets.all(10),
+            margin: EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 10),
+            child: Row(
+              children: [
+                Text('此事的重要性 '),
+                DropDownListImportant(),
+              ],
+            ),
+          )
         ],
       ),
     );
   }
 }
 
-class Tag extends StatelessWidget {
+class Tag extends StatefulWidget {
+  final Function(String) onTagTap;
+
+  Tag({required this.onTagTap});
+
+  @override
+  State<Tag> createState() => _TagState();
+}
+
+class _TagState extends State<Tag> {
   final List<TagData> tags = [
     TagData(name: '工作', color: Colors.blue),
     TagData(name: '個人', color: Colors.green),
@@ -127,9 +146,12 @@ class Tag extends StatelessWidget {
     TagData(name: '閱讀', color: Colors.brown),
   ];
 
-  final Function(String) onTagTap;
-
-  Tag({required this.onTagTap});
+  void _isTap(int index) {
+    setState(() {
+      tags[index].isTap = !tags[index].isTap;
+    });
+    widget.onTagTap(tags[index].name);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,32 +163,81 @@ class Tag extends StatelessWidget {
         child: Wrap(
           spacing: 6,
           runSpacing: 8,
-          children: tags.map((tag) => _buildTagChip(tag)).toList(),
+          children: tags
+              .asMap()
+              .entries
+              .map((entry) => _buildTagChip(entry.key, entry.value))
+              .toList(),
         ),
       ),
     );
   }
 
-  Widget _buildTagChip(TagData tag) {
+  Widget _buildTagChip(int index, TagData tag) {
     return Container(
-      constraints: BoxConstraints(maxWidth: 65),
-      child: InkWell(
-        onTap: () => onTagTap(tag.name),
-        child: Chip(
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, // 減小點擊區域
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-          label: Text(tag.name),
-          backgroundColor: tag.color.withOpacity(0.2),
-          labelStyle: TextStyle(color: tag.color),
-        ),
-      ),
-    );
+        constraints: BoxConstraints(maxWidth: 65),
+        child: Stack(
+          children: [
+            InkWell(
+              onTap: () => _isTap(index),
+              child: Chip(
+                materialTapTargetSize:
+                    MaterialTapTargetSize.shrinkWrap, // 減小點擊區域
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                label: Text(tag.name),
+                backgroundColor: tag.color.withOpacity(0.2),
+                labelStyle: TextStyle(color: tag.color),
+              ),
+            ),
+            if (!tag.isTap)
+              Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.red,
+                    ),
+                  ))
+          ],
+        ));
   }
 }
 
 class TagData {
   final String name;
   final Color color;
+  bool isTap;
 
-  TagData({required this.name, required this.color});
+  TagData({required this.name, required this.color, this.isTap = true});
+}
+
+class DropDownListImportant extends StatefulWidget {
+  @override
+  State<DropDownListImportant> createState() => _DropDownListImportantState();
+}
+
+class _DropDownListImportantState extends State<DropDownListImportant> {
+  String dropdowwnValue = '中'; // 預設下拉選單
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton<String>(
+      value: dropdowwnValue, // 帶入剛剛的預設值
+      onChanged: (String? newValue) {
+        setState(() {
+          dropdowwnValue = newValue!; // 設定setState能根據你下面選的選項進行替換
+        });
+      },
+      items:
+          <String>['高', '中', '低'].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
 }
