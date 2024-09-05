@@ -8,6 +8,7 @@ import 'package:todo/widgets/DDLImport.dart';
 import 'package:todo/widgets/TimeDatePicker.dart';
 import 'package:todo/services/ToDoListService.dart';
 import 'package:todo/models/ToDoList.dart';
+import 'package:todo/widgets/List.dart';
 
 class Addpage extends StatefulWidget {
   const Addpage({super.key});
@@ -85,8 +86,50 @@ class _AddpageState extends State<Addpage> {
       'time': selectedTime != null
           ? selectedTime?.format(context)
           : TimeOfDay.now().format(context), // 使
-      'importance': importance.isEmpty ? '中' : importance
+      'importance': importance.isEmpty ? '中' : importance,
+      'status': 'pending',
+      'isneedremind': '0',
+      'isreply': '0',
+      'creator': 'matthew'
     };
+  }
+
+  Future<int> insertTodoList(BuildContext context) async {
+    Map<String, dynamic> values = getAllValues();
+
+    // 創建 Todolist 對象
+    final todolist = Todolist(
+      title: values['title'],
+      describe: null, // getAllValues() 沒有提供 describe
+      createtime: values['date'], // 使用當前時間作為創建時間
+      neetime: values['time'],
+      importance: values['importance'],
+      status: values['status'],
+      finishtime: null, // getAllValues() 沒有提供 finishtime
+      tags: values['tags'],
+      isneedremind: values['isneedremind'] == '1',
+      isreply: values['isreply'] == '1',
+      replytime: null, // getAllValues() 沒有提供 replytime
+      creator: values['creator'],
+    );
+
+    return DatabaseHelper.instance.insert(todolist);
+  }
+
+  void onSaveButtonTodoList(BuildContext context) async {
+    final insertTodo = await insertTodoList(context);
+
+    if (insertTodo > 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('待辦事項已成功保存')),
+      );
+      Navigator.pop(context);
+    } else {
+      print('插入失敗');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('保存失敗，請重試')),
+      );
+    }
   }
 
   @override
@@ -102,12 +145,16 @@ class _AddpageState extends State<Addpage> {
           centerTitle: true,
           actions: [
             IconButton(
-                onPressed: () {
+                onPressed: () async {
                   // 儲存
                   _validateInput(_controller.text);
                   if (_errorText == null) {
-                    Map<String, dynamic> allvalue = getAllValues();
-                    print(allvalue);
+                    onSaveButtonTodoList(context);
+
+                    List<Todolist>? updatedData = await DatabaseHelper.instance
+                        .getTodolistByUser('matthew');
+
+                    todoListKey.currentState?.refreshList();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

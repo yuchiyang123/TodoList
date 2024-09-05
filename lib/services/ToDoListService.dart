@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:todo/models/ToDoList.dart'; // 假設您的Todolist模型在這個文件中
@@ -67,13 +69,13 @@ class DatabaseHelper {
     return null;
   }
 
-  /// 123456
+  /// 取得使用者的todoList
   Future<List<Todolist>?> getTodolistByUser(String UserName) async {
     final db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'todolist',
-      where: 'creator = ?',
-      whereArgs: [UserName],
+      where: 'creator = ? AND status = ?',
+      whereArgs: [UserName, 'pending'],
     );
 
     if (maps.isNotEmpty) {
@@ -94,6 +96,18 @@ class DatabaseHelper {
     );
   }
 
+  /// 刪除
+  Future<int> updataDel(int? id) async {
+    final db = await instance.database;
+    return await db.update(
+      'todolist',
+      {'status': 'delete'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// 禁止使用
   Future<int> delete(int id) async {
     final db = await instance.database;
     return await db.delete(
@@ -106,5 +120,43 @@ class DatabaseHelper {
   Future close() async {
     final db = await instance.database;
     db.close();
+  }
+}
+
+class ToDoListService {
+  final _todoListController = StreamController<List<Todolist>>.broadcast();
+
+  Stream<List<Todolist>> getTodolistStream(String userName) {
+    _loadTodolist(userName);
+    return _todoListController.stream;
+  }
+
+  Future<void> _loadTodolist(String userName) async {
+    try {
+      List<Todolist>? loadedList =
+          await DatabaseHelper.instance.getTodolistByUser(userName);
+      _todoListController.add(loadedList ?? []);
+    } catch (e) {
+      _todoListController.addError(e);
+    }
+  }
+
+  Future<void> addTodoItem(Todolist newItem) async {
+    await DatabaseHelper.instance.insert(newItem);
+    _loadTodolist('matthew'); // 重新加載數據
+  }
+
+  Future<void> updateTodoItem(Todolist updatedItem) async {
+    await DatabaseHelper.instance.update(updatedItem);
+    _loadTodolist('matthew'); // 重新加載數據
+  }
+
+  Future<void> deleteTodoItem(int id) async {
+    await DatabaseHelper.instance.delete(id);
+    _loadTodolist('matthew'); // 重新加載數據
+  }
+
+  void dispose() {
+    _todoListController.close();
   }
 }

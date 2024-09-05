@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/AddPage.dart';
+import 'widgets/List.dart';
 
 void main() {
   runApp(MyApp());
@@ -42,6 +43,9 @@ class _HomepageState extends State<Homepage> {
       appBar: AppBar(
         centerTitle: true,
         title: (Text('代辦事項')),
+      ),
+      body: SafeArea(
+        child: TodoListMain(),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddPage(context),

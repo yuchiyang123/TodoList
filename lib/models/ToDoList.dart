@@ -4,11 +4,11 @@ class Todolist {
   final int? id;
   final String title;
   final String? describe;
-  final TimeOfDay createtime;
-  final TimeOfDay? neetime;
+  final String createtime;
+  final String? neetime;
   final String importance;
   final String status;
-  final TimeOfDay? finishtime;
+  final String? finishtime;
   final String tags;
   final bool isneedremind;
   final bool isreply;
@@ -37,11 +37,11 @@ class Todolist {
       'id': id,
       'title': title,
       'describe': describe,
-      'createtime': _timeOfDayToString(createtime),
-      'neetime': neetime != null ? _timeOfDayToString(neetime!) : null,
+      'createtime': createtime,
+      'neetime': neetime ?? null,
       'importance': importance,
       'status': status,
-      'finishtime': finishtime != null ? _timeOfDayToString(finishtime!) : null,
+      'finishtime': finishtime ?? null,
       'tags': tags,
       'isneedremind': isneedremind ? 1 : 0,
       'isreply': isreply ? 1 : 0,
@@ -56,14 +56,11 @@ class Todolist {
       id: map['id'],
       title: map['title'],
       describe: map['describe'],
-      createtime: _stringToTimeOfDay(map['createtime']),
-      neetime:
-          map['neetime'] != null ? _stringToTimeOfDay(map['neetime']) : null,
+      createtime: map['createtime'],
+      neetime: map['neetime'] != null ? (map['neetime']) : null,
       importance: map['importance'],
       status: map['status'],
-      finishtime: map['finishtime'] != null
-          ? _stringToTimeOfDay(map['finishtime'])
-          : null,
+      finishtime: map['finishtime'] != null ? (map['finishtime']) : null,
       tags: map['tags'],
       isneedremind: map['isneedremind'] == 1,
       isreply: map['isreply'] == 1,
