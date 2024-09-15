@@ -41,6 +41,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   sqflite: ^2.3.3+1
   path: ^1.9.0
+  crypto: ^3.0.1
+  flutter_secure_storage: ^8.0.0
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +60,9 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  assets:
+    - assets/
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

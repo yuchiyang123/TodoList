@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'screens/AddPage.dart';
 import 'widgets/List.dart';
+import 'screens/login.dart';
+import 'route/route.dart';
+import 'Auth/AuthService.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,7 +27,38 @@ class MyApp extends StatelessWidget {
       ],
       title: '代辦事項',
       theme: ThemeData(primarySwatch: Colors.amber),
-      home: Homepage(),
+      home: FutureBuilder<bool>(
+        future: AuthService().isLoggedIn(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // 当正在检查登录状态时，显示加载指示器
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          } else {
+            // 登录状态检查完成后，根据结果决定初始路由
+            final isLoggedIn = snapshot.data ?? false;
+            return MaterialApp(
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: [
+                const Locale('zh', 'CN'), // 简体中文
+                const Locale('zh', 'TW'), // 繁体中文
+              ],
+              title: '代辦事項',
+              theme: ThemeData(primarySwatch: Colors.amber),
+              initialRoute: isLoggedIn ? AppRoutes.home : AppRoutes.login,
+              routes: AppRoutes.routes,
+              onGenerateRoute: AppRoutes.generateRoute,
+            );
+          }
+        },
+      ),
     );
   }
 }
