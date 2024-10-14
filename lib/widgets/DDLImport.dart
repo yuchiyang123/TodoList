@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
 class CupertinoDropDownListImportant extends StatefulWidget {
+  final String? preImport;
   final Function(String) onImportant;
 
-  CupertinoDropDownListImportant({required this.onImportant});
+  CupertinoDropDownListImportant({required this.onImportant, this.preImport});
 
   @override
   State<CupertinoDropDownListImportant> createState() =>
@@ -12,14 +13,27 @@ class CupertinoDropDownListImportant extends StatefulWidget {
 
 class _CupertinoDropDownListImportantState
     extends State<CupertinoDropDownListImportant> {
-  String selectedValue = '中'; // 預設選擇
+  String? selectedValue; // 預設選擇
+
+  void initState() {
+    super.initState();
+    selectedValue = _getInitImport();
+  }
+
+  String? _getInitImport() {
+    if (widget.preImport != null && widget.preImport!.isNotEmpty) {
+      return widget.preImport ?? '中';
+    }
+    return '中';
+  }
+
   final List<String> options = ['高', '中', '低'];
 
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
-      child: Text(selectedValue),
+      child: Text(selectedValue!),
       onPressed: () {
         showCupertinoModalPopup<void>(
           context: context,
@@ -38,12 +52,12 @@ class _CupertinoDropDownListImportantState
                 useMagnifier: true,
                 itemExtent: 32.0,
                 scrollController: FixedExtentScrollController(
-                  initialItem: options.indexOf(selectedValue),
+                  initialItem: options.indexOf(selectedValue!),
                 ),
                 onSelectedItemChanged: (int selectedIndex) {
                   setState(() {
                     selectedValue = options[selectedIndex];
-                    widget.onImportant(selectedValue);
+                    widget.onImportant(selectedValue!);
                   });
                 },
                 children: List<Widget>.generate(options.length, (int index) {

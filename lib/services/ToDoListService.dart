@@ -1,14 +1,21 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:todo/models/ToDoList.dart'; // 假設您的Todolist模型在這個文件中
+import 'package:todo/Auth/AuthService.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
 
   DatabaseHelper._init();
+
+  Future<void> _getUserInfo() async {
+    final UserInfo = await AuthService().getUserInfo();
+  }
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -127,11 +134,11 @@ class ToDoListService {
   final _todoListController = StreamController<List<Todolist>>.broadcast();
 
   Stream<List<Todolist>> getTodolistStream(String userName) {
-    _loadTodolist(userName);
+    loadTodolist(userName);
     return _todoListController.stream;
   }
 
-  Future<void> _loadTodolist(String userName) async {
+  Future<void> loadTodolist(String userName) async {
     try {
       List<Todolist>? loadedList =
           await DatabaseHelper.instance.getTodolistByUser(userName);
@@ -143,17 +150,17 @@ class ToDoListService {
 
   Future<void> addTodoItem(Todolist newItem) async {
     await DatabaseHelper.instance.insert(newItem);
-    _loadTodolist('matthew'); // 重新加載數據
+    //_loadTodolist('matthew'); // 重新加載數據
   }
 
   Future<void> updateTodoItem(Todolist updatedItem) async {
     await DatabaseHelper.instance.update(updatedItem);
-    _loadTodolist('matthew'); // 重新加載數據
+    loadTodolist('matthew'); // 重新加載數據
   }
 
   Future<void> deleteTodoItem(int id) async {
     await DatabaseHelper.instance.delete(id);
-    _loadTodolist('matthew'); // 重新加載數據
+    loadTodolist('matthew'); // 重新加載數據
   }
 
   void dispose() {

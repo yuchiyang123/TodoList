@@ -5,13 +5,25 @@ import 'widgets/List.dart';
 import 'screens/login.dart';
 import 'route/route.dart';
 import 'Auth/AuthService.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:todo/screens/draw.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -22,43 +34,28 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: [
-        const Locale('zh', 'CN'), // 简体中文
-        const Locale('zh', 'TW'), // 繁体中文
+        const Locale('zh', 'CN'),
+        const Locale('zh', 'TW'),
       ],
       title: '代辦事項',
       theme: ThemeData(primarySwatch: Colors.amber),
-      home: FutureBuilder<bool>(
-        future: AuthService().isLoggedIn(),
+      home: StreamBuilder<bool>(
+        stream: _authService.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // 当正在检查登录状态时，显示加载指示器
             return Scaffold(
               body: Center(
                 child: CircularProgressIndicator(),
               ),
             );
           } else {
-            // 登录状态检查完成后，根据结果决定初始路由
             final isLoggedIn = snapshot.data ?? false;
-            return MaterialApp(
-              localizationsDelegates: [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: [
-                const Locale('zh', 'CN'), // 简体中文
-                const Locale('zh', 'TW'), // 繁体中文
-              ],
-              title: '代辦事項',
-              theme: ThemeData(primarySwatch: Colors.amber),
-              initialRoute: isLoggedIn ? AppRoutes.home : AppRoutes.login,
-              routes: AppRoutes.routes,
-              onGenerateRoute: AppRoutes.generateRoute,
-            );
+            return isLoggedIn ? Homepage() : LoginPage();
           }
         },
       ),
+      routes: AppRoutes.routes,
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }
@@ -78,6 +75,7 @@ class _HomepageState extends State<Homepage> {
         centerTitle: true,
         title: (Text('代辦事項')),
       ),
+      drawer: DrawerC(),
       body: SafeArea(
         child: TodoListMain(),
       ),

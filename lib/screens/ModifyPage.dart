@@ -11,14 +11,31 @@ import 'package:todo/models/ToDoList.dart';
 import 'package:todo/widgets/List.dart';
 import 'package:todo/Auth/AuthService.dart';
 
-class Addpage extends StatefulWidget {
-  const Addpage({super.key});
+class Modifypage extends StatefulWidget {
+  //const Modifypage({super.key});
+
+  final String pretitle;
+  final String preimport;
+  final String pretags;
+  final String prestatus;
+  final String predateTime;
+  final String? pretimeofday;
+
+  const Modifypage({
+    Key? key,
+    required this.pretitle,
+    required this.preimport,
+    required this.pretags,
+    required this.prestatus,
+    required this.predateTime,
+    required this.pretimeofday,
+  }) : super(key: key);
 
   @override
-  State<Addpage> createState() => _AddpageState();
+  State<Modifypage> createState() => _ModifypageState();
 }
 
-class _AddpageState extends State<Addpage> {
+class _ModifypageState extends State<Modifypage> {
   late TextEditingController _controller;
   String tagName = '';
   String importance = '';
@@ -29,7 +46,7 @@ class _AddpageState extends State<Addpage> {
   bool isHasData = false;
   bool isUpdate = false;
 
-  Future<void> _updateState () async {
+  Future<void> _updateState() async {
     setState(() {
       isUpdate = true;
     });
@@ -59,11 +76,23 @@ class _AddpageState extends State<Addpage> {
   void _validateInput(String value) {
     setState(() {
       if (value.isEmpty) {
-        _errorText = '標題不得為空';
+        value = widget.pretitle;
       } else {
         _errorText = null;
       }
     });
+  }
+
+  String? _updateTitle(String value) {
+    String? preValue;
+    setState(() {
+      if (value.isEmpty) {
+        preValue = widget.pretitle;
+      } else {
+        preValue = value;
+      }
+    });
+    return preValue;
   }
 
   void _updateText(String newTagName) {
@@ -132,7 +161,7 @@ class _AddpageState extends State<Addpage> {
       creator: values['creator'],
     );
 
-    return DatabaseHelper.instance.insert(todolist);
+    return DatabaseHelper.instance.update(todolist);
   }
 
   void onSaveButtonTodoList(BuildContext context) async {
@@ -161,14 +190,14 @@ class _AddpageState extends State<Addpage> {
       child: Scaffold(
         appBar: AppBar(
           title: (Text(
-            '新增代辦',
+            '修改代辦',
           )),
           centerTitle: true,
           actions: [
             IconButton(
                 onPressed: () async {
                   // 儲存
-                  _validateInput(_controller.text);
+                  _updateTitle(_controller.text);
                   if (_errorText == null) {
                     onSaveButtonTodoList(context);
                     if (isHasData) {
@@ -190,7 +219,7 @@ class _AddpageState extends State<Addpage> {
                     );
                   }
                 },
-                icon: Icon(Icons.add))
+                icon: Icon(Icons.edit))
           ],
         ),
         body: SingleChildScrollView(
@@ -207,7 +236,7 @@ class _AddpageState extends State<Addpage> {
                   child: TextFormField(
                     controller: _controller,
                     decoration: InputDecoration(
-                      hintText: '請輸入代辦事項..',
+                      hintText: widget.pretitle,
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
@@ -294,8 +323,14 @@ class _AddpageState extends State<Addpage> {
               Container(
                 child: Column(
                   children: [
-                    TimePicker(onTimeChanged: _updateTime),
-                    DatePick(onDateChanged: _updateDate),
+                    TimePicker(
+                      onTimeChanged: _updateTime,
+                      preTime: widget.pretimeofday,
+                    ),
+                    DatePick(
+                      onDateChanged: _updateDate,
+                      preTime: widget.predateTime,
+                    ),
                   ],
                 ),
               ),

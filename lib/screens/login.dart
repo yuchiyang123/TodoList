@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:todo/route/route.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:todo/Auth/GoogleAuth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -160,6 +162,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+              SizedBox(
+                height: 20,
+              ),
+              FirebaseGoogleSignIn(),
             ],
           ),
         ),
