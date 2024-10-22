@@ -303,7 +303,10 @@ class _ModifypageState extends State<Modifypage> {
                       margin: EdgeInsets.only(top: 5),
                     ),
                     Padding(padding: EdgeInsets.all(5)),
-                    Tag(onTagTap: _updateText),
+                    Tag(
+                      onTagTap: _updateText,
+                      tag: widget.pretags,
+                    ),
                   ],
                 ),
               ),
@@ -344,26 +347,52 @@ class _ModifypageState extends State<Modifypage> {
 
 class Tag extends StatefulWidget {
   final Function(String) onTagTap;
+  late String? tag;
 
-  Tag({required this.onTagTap});
+  Tag({required this.onTagTap, this.tag});
 
   @override
   State<Tag> createState() => _TagState();
 }
 
 class _TagState extends State<Tag> {
-  final List<TagData> tags = [
-    TagData(name: '工作', color: Colors.blue),
-    TagData(name: '個人', color: Colors.green),
-    TagData(name: '緊急', color: Colors.red),
-    TagData(name: '學習', color: Colors.orange),
-    TagData(name: '健康', color: Colors.purple),
-    TagData(name: '家庭', color: Colors.pink),
-    TagData(name: '專案', color: Colors.teal),
-    TagData(name: '會議', color: Colors.indigo),
-    TagData(name: '購物', color: Colors.amber),
-    TagData(name: '閱讀', color: Colors.brown),
-  ];
+  late List<TagData> tags;
+  late List<String> tag = widget.tag!.split(',');
+  // final List<TagData> tags = [
+  //   TagData(name: '工作', color: Colors.blue),
+  //   TagData(name: '個人', color: Colors.green),
+  //   TagData(name: '緊急', color: Colors.red),
+  //   TagData(name: '學習', color: Colors.orange),
+  //   TagData(name: '健康', color: Colors.purple),
+  //   TagData(name: '家庭', color: Colors.pink),
+  //   TagData(name: '專案', color: Colors.teal),
+  //   TagData(name: '會議', color: Colors.indigo),
+  //   TagData(name: '購物', color: Colors.amber),
+  //   TagData(name: '閱讀', color: Colors.brown),
+  // ];
+
+  @override
+  void initState() {
+    super.initState();
+    tags = [
+      TagData(name: '工作', color: Colors.blue),
+      TagData(name: '個人', color: Colors.green),
+      TagData(name: '緊急', color: Colors.red),
+      TagData(name: '學習', color: Colors.orange),
+      TagData(name: '健康', color: Colors.purple),
+      TagData(name: '家庭', color: Colors.pink),
+      TagData(name: '專案', color: Colors.teal),
+      TagData(name: '會議', color: Colors.indigo),
+      TagData(name: '購物', color: Colors.amber),
+      TagData(name: '閱讀', color: Colors.brown),
+    ];
+
+    if (tag != null) {
+      for (var tag in tags) {
+        tag.isTap = !widget.tag!.contains(tag.name);
+      }
+    }
+  }
 
   void _isTap(int index) {
     setState(() {

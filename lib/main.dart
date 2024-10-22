@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
         const Locale('zh', 'CN'),
         const Locale('zh', 'TW'),
       ],
-      title: '代辦事項',
+      title: '代辦事項1',
       theme: ThemeData(primarySwatch: Colors.amber),
       home: StreamBuilder<bool>(
         stream: _authService.authStateChanges(),
